@@ -5,19 +5,13 @@ export async function getUserRepos(req: Request, res: Response, next: NextFuncti
   const { firstUser, secondUser } = req.body;
   let first: Object;
   let second: Object;
-  try {
-    await axios.get(`https://api.github.com/users/${firstUser}/repos`)
-    .then(response => first = response.data)
-    .catch(err => res.sendStatus(400));
-    await axios.get(`https://api.github.com/users/${secondUser}/repos`)
-    .then(response => second = response.data)
-    .catch(err => res.sendStatus(400));
-
-    res.locals.first = first;
-    res.locals.second = second;
-    next();
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send(e);
-  }
+  await axios.get(`https://api.github.com/users/${firstUser}/repos`)
+  .then(response => first = response.data)
+  .catch(err => {throw{type: "axiosError", message: "Invalid user", code: 400}});
+  await axios.get(`https://api.github.com/users/${secondUser}/repos`)
+  .then(response => second = response.data)
+  .catch(err => {throw{type: "axiosError", message: "Invalid user", code: 400}});
+  res.locals.first = first;
+  res.locals.second = second;
+  next();
 }

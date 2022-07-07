@@ -1,24 +1,17 @@
 import { Request, Response } from "express";
 import userRepository from "../Repositories/userRepository.js";
-import { updateDatabase } from "../Services/usersService.js";
+import { compareUsers, getUserStarCount, updateDatabase } from "../Services/usersService.js";
 
 export async function compareStars(req: Request, res: Response){
-  const { firstStarCount, secondStarCount, result } = res.locals;
-  try {
-    updateDatabase(result)
-    return res.send(result);
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send(e);
-  }
+  const { firstUser, secondUser } = req.body;
+  const { first, second } = res.locals;
+  const starCount = getUserStarCount(first, second);
+  const result = compareUsers(firstUser, secondUser, starCount.firstStarCount, starCount.secondStarCount);
+  updateDatabase(result)
+  return res.send(result);
 };
 
 export async function getRanking(req: Request, res: Response){
-  try {
-    const rankingRequest = await userRepository.getRanking();
-    res.send(rankingRequest.rows);
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send(e);
-  }
+  const rankingRequest = await userRepository.getRanking();
+  res.send(rankingRequest.rows);
 }

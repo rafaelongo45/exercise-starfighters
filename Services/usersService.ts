@@ -1,10 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-
 import userRepository from "../Repositories/userRepository.js";
 
-export function getUserStarCount(req: Request, res: Response, next: NextFunction){
-  const { first, second } = res.locals;
-
+export function getUserStarCount(first, second){
   let firstStarCount = 0;
   let secondStarCount = 0;
 
@@ -13,21 +9,20 @@ export function getUserStarCount(req: Request, res: Response, next: NextFunction
       secondStarCount += second[i].stargazers_count
     }
   }
-
+  
   for(let i = 0; i < first.length; i++){
     if(first[i].stargazers_count){
       firstStarCount += first[i].stargazers_count
     }
   }
   
-  res.locals.firstStarCount = firstStarCount;
-  res.locals.secondStarCount = secondStarCount;
-  next();
+  return {
+    firstStarCount,
+    secondStarCount
+  }
 };
 
-export function compareUsers(req: Request, res: Response, next: NextFunction){
-  const { firstUser, secondUser} = req.body;
-  const { firstStarCount, secondStarCount } = res.locals;
+export function compareUsers(firstUser, secondUser, firstStarCount, secondStarCount){
   let result: Object;
 
   if(firstStarCount > secondStarCount){
@@ -54,8 +49,7 @@ export function compareUsers(req: Request, res: Response, next: NextFunction){
     }
   }
 
-  res.locals.result = result;
-  next();
+  return result;
 };
 
 export async function updateDatabase(result){
